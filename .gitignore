@@ -1,0 +1,5 @@
+.idea
+node_modules
+
+app.log
+scripts/bin
