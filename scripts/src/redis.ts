@@ -110,7 +110,7 @@ function set(ctx: connector.CommandHandlerContext) {
 			ctx.type = "application/json";
 			ctx.body = {
 				status: 0, // value for fugazi.components.commands.handler.ResultStatus.Failure
-				value: `successfully set "${ key }" to ${ value }`
+				value: `successfully set "${ key }" to ${ JSON.stringify(value) }`
 			};
 
 			resolve(`successfully set "${ key }" to ${ value }`);
