@@ -1,11 +1,9 @@
 {
-  "name": "fugazi.connector.node.redis",
-  "version": "1.0.0",
+  "name": "@fugazi/connector.redis",
+  "version": "1.0.1",
   "description": "a fugazi redis connector for node",
   "main": "scripts/bin/index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "types": "scripts/bin/index.d.ts",
   "keywords": [],
   "repository": {
     "type": "git",
