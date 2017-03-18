@@ -81,5 +81,5 @@ More commands to follow.
 ## Contribution
 
 We'll be happy to get help with this connector (as with all [fugazi repos](https://github.com/fugazi-io)), for example to 
-add unimplemented commands.  
+add unimplemented commands (more info in [Add a Redis command](https://github.com/fugazi-io/connector.node.redis/wiki/Add-a-Redis-command)).  
 Feel free to fork and open pull request, or find us in this gmail.com address: terminal.fugazi.io
