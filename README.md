@@ -3,6 +3,8 @@
 A fugazi connector for Redis which adds the ability to use redis from the [fugazi terminal client](https://github.com/fugazi-io/webclient).
 
 ## Installing
+The connector requires [node.js](https://nodejs.org/en/) to run, if you don't have it then [download](https://nodejs.org/en/download/) or use [a package manager](https://nodejs.org/en/download/package-manager/).  
+
 The package can be found in [npm @fugazi/connector.redis](https://www.npmjs.com/package/@fugazi/connector.redis):
 ```bash
 npm install @fugazi/connector.redis
