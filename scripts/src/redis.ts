@@ -7,181 +7,37 @@ import * as connector from "fugazi.connector.node";
 
 let client: redis.RedisClient | null = null;
 
-export type Commands = {
+export type CommandHandler = {
 	path: string;
 	method: string;
 	handler: connector.CommandHandler;
-}[];
+}
+export type Commands = CommandHandler[];
+
+type CommandMeta = {
+	descriptor: connector.RemoteCommand;
+	handler: CommandHandler;
+}
+const COMMANDS = new Map<string, CommandMeta>();
+function command(name: string, descriptor: connector.RemoteCommand, handler: CommandHandler) {
+	COMMANDS.set(name, { descriptor, handler });
+}
 
 export async function init(module: connector.RootModule, host?: string, port?: number): Promise<Commands> {
 	const promise = (host != null && port != null ? redisConnect(host, port) : Promise.resolve()) as Promise<void>;
 
 	return promise.then(() => {
-		Object.assign(module.commands, {
-			connect: {
-				title: "Connect command",
-				returns: "ui.message",
-				syntax: "connect (host string) (port numbers.integer)",
-				handler: {
-					endpoint: "connect"
-				}
-			},
-			append: {
-				title: "APPEND command",
-				returns: "ui.message",
-				syntax: [
-					"append (key string) (value string)",
-					"append (value string) to (key string)",
-					"APPEND (key string) (value string)",
-					"APPEND (value string) to (key string)"
-				],
-				handler: {
-					endpoint: "append",
-					method: "post"
-				}
-			},
-			dbsize: {
-				title: "DBSIZE command",
-				returns: "number[numbers.integer]",
-				syntax: [
-					"dbsize",
-					"DBSIZE"
-				],
-				handler: {
-					endpoint: "dbsize"
-				}
-			},
-			decrement: {
-				title: "DECR command",
-				returns: "ui.message",
-				syntax: [
-					"decr (key string)",
-					"DECR (key string)"
-				],
-				handler: {
-					endpoint: "decrement",
-					method: "post"
-				}
-			},
-			decrementby: {
-				title: "DECRBY command",
-				returns: "ui.message",
-				syntax: [
-					"decrby (key string) (by number)",
-					"DECRBY (key string) (by number)",
-					"decr (key string) by (by number)",
-					"DECR (key string) by (by number)",
-				],
-				handler: {
-					endpoint: "decrementby",
-					method: "post"
-				}
-			},
-			del: {
-				title: "DEL command",
-				returns: "ui.message",
-				syntax: [
-					"del (key string)",
-					"DEL (key string)",
-					"del (keys list<string>)",
-					"DEL (keys list<string>)",
-				],
-				handler: {
-					endpoint: "delete",
-					method: "delete"
-				}
-			},
-			dump: {
-				title: "DUMP command",
-				returns: "string",
-				syntax: [
-					"dump (key string)",
-					"DUMP (key string)"
-				],
-				handler: {
-					endpoint: "dump/{key}"
-				}
-			},
-			exists: {
-				title: "EXISTS command",
-				returns: "number[numbers.integer]",
-				syntax: [
-					"exists (key string)",
-					"EXISTS (key string)",
-					"exists (keys list<string>)",
-					"EXISTS (keys list<string>)"
-				],
-				handler: {
-					endpoint: "exists"
-				}
-			},
-			get: {
-				title: "GET command",
-				returns: "any",
-				syntax: [
-					"get (key string)",
-					"GET (key string)"
-				],
-				handler: {
-					endpoint: "get/{key}",
-					method: "get"
-				}
-			},
-			set: {
-				title: "SET command",
-				returns: "ui.message",
-				syntax: [
-					"set (key string) to (value any)",
-					"SET (key string) to (value any)"
-				],
-				handler: {
-					endpoint: "set",
-					method: "post"
-				}
-			}
+		const descriptors = {} as { [name: string]: connector.RemoteCommand};
+		const commands = [] as Commands;
+
+		COMMANDS.forEach((meta, name) => {
+			descriptors[name] = meta.descriptor;
+			commands.push(meta.handler);
 		});
 
-		return [{
-			path: "/connect",
-			method: "get",
-			handler: connect
-		}, {
-			path: "/append",
-			method: "post",
-			handler: append
-		}, {
-			path: "/decrement",
-			method: "post",
-			handler: decrement
-		}, {
-			path: "/dbsize",
-			method: "get",
-			handler: dbsize
-		}, {
-			path: "/decrementby",
-			method: "post",
-			handler: decrementBy
-		}, {
-			path: "/delete",
-			method: "delete",
-			handler: del
-		}, {
-			path: "/dump/:key",
-			method: "get",
-			handler: dump
-		}, {
-			path: "/exists",
-			method: "get",
-			handler: exists
-		}, {
-			path: "/get/:key",
-			method: "get",
-			handler: get
-		}, {
-			path: "/set",
-			method: "post",
-			handler: set
-		}];
+		Object.assign(module.commands, descriptors);
+
+		return commands;
 	});
 }
 
@@ -246,6 +102,22 @@ function connect(ctx: connector.CommandHandlerContext) {
 			return msg;
 		});
 }
+command(
+	"connect",
+	{
+		title: "Connect command",
+		returns: "ui.message",
+		syntax: "connect (host string) (port numbers.integer)",
+		handler: {
+			endpoint: "connect"
+		}
+	},
+	{
+		path: "/connect",
+		method: "get",
+		handler: connect
+	}
+);
 
 function append(ctx: connector.CommandHandlerContext) {
 	if (!client) {
@@ -265,6 +137,28 @@ function append(ctx: connector.CommandHandlerContext) {
 		}
 	});
 }
+command(
+	"append",
+	{
+		title: "APPEND command",
+		returns: "ui.message",
+		syntax: [
+			"append (key string) (value string)",
+			"append (value string) to (key string)",
+			"APPEND (key string) (value string)",
+			"APPEND (value string) to (key string)"
+		],
+		handler: {
+			endpoint: "append",
+			method: "post"
+		}
+	},
+	{
+		path: "/append",
+		method: "post",
+		handler: append
+	}
+);
 
 function dbsize(ctx: connector.CommandHandlerContext) {
 	if (!client) {
@@ -282,6 +176,25 @@ function dbsize(ctx: connector.CommandHandlerContext) {
 		}
 	});
 }
+command(
+	"dbsize",
+	{
+		title: "DBSIZE command",
+		returns: "number[numbers.integer]",
+		syntax: [
+			"dbsize",
+			"DBSIZE"
+		],
+		handler: {
+			endpoint: "dbsize"
+		}
+	},
+	{
+		path: "/dbsize",
+		method: "get",
+		handler: dbsize
+	}
+);
 
 function decrement(ctx: connector.CommandHandlerContext) {
 	if (!client) {
@@ -302,6 +215,26 @@ function decrement(ctx: connector.CommandHandlerContext) {
 		}
 	});
 }
+command(
+	"decrement",
+	{
+		title: "DECR command",
+		returns: "ui.message",
+		syntax: [
+			"decr (key string)",
+			"DECR (key string)"
+		],
+		handler: {
+			endpoint: "decrement",
+			method: "post"
+		}
+	},
+	{
+		path: "/decrement",
+		method: "post",
+		handler: decrement
+	}
+);
 
 function decrementBy(ctx: connector.CommandHandlerContext) {
 	if (!client) {
@@ -329,6 +262,28 @@ function decrementBy(ctx: connector.CommandHandlerContext) {
 		}
 	});
 }
+command(
+	"decrementBy",
+	{
+		title: "DECRBY command",
+		returns: "ui.message",
+		syntax: [
+			"decrby (key string) (by number)",
+			"DECRBY (key string) (by number)",
+			"decr (key string) by (by number)",
+			"DECR (key string) by (by number)",
+		],
+		handler: {
+			endpoint: "decrementby",
+			method: "post"
+		}
+	},
+	{
+		path: "/decrementby",
+		method: "post",
+		handler: decrementBy
+	}
+);
 
 function del(ctx: connector.CommandHandlerContext) {
 	if (!client) {
@@ -363,6 +318,28 @@ function del(ctx: connector.CommandHandlerContext) {
 		}
 	});
 }
+command(
+	"del",
+	{
+		title: "DEL command",
+		returns: "ui.message",
+		syntax: [
+			"del (key string)",
+			"DEL (key string)",
+			"del (keys list<string>)",
+			"DEL (keys list<string>)",
+		],
+		handler: {
+			endpoint: "delete",
+			method: "delete"
+		}
+	},
+	{
+		path: "/delete",
+		method: "delete",
+		handler: del
+	}
+);
 
 function dump(ctx: connector.CommandHandlerContext) {
 	console.log("sup?");
@@ -388,6 +365,25 @@ function dump(ctx: connector.CommandHandlerContext) {
 		}
 	});
 }
+command(
+	"dump",
+	{
+		title: "DUMP command",
+		returns: "string",
+		syntax: [
+			"dump (key string)",
+			"DUMP (key string)"
+		],
+		handler: {
+			endpoint: "dump/{key}"
+		}
+	},
+	{
+		path: "/dump/:key",
+		method: "get",
+		handler: dump
+	}
+);
 
 function exists(ctx: connector.CommandHandlerContext) {
 	if (!client) {
@@ -421,6 +417,79 @@ function exists(ctx: connector.CommandHandlerContext) {
 		}
 	});
 }
+command(
+	"exists",
+	{
+		title: "EXISTS command",
+		returns: "number[numbers.integer]",
+		syntax: [
+			"exists (key string)",
+			"EXISTS (key string)",
+			"exists (keys list<string>)",
+			"EXISTS (keys list<string>)"
+		],
+		handler: {
+			endpoint: "exists"
+		}
+	},
+	{
+		path: "/exists",
+		method: "get",
+		handler: exists
+	}
+);
+
+function get(ctx: connector.CommandHandlerContext) {
+	if (!client) {
+		errorResponse(ctx, "not connected", 400);
+	}
+
+	const key = ctx.params.key;
+
+	return new Promise((resolve , reject) => {
+		if (!client!.get(key, (err: Error, value: string) => {
+				if (err) {
+					errorResponse(ctx, err.message);
+					reject(err);
+				} else {
+					try {
+						value = JSON.parse(value);
+					} catch (e) {}
+
+					if (value == null) {
+						errorResponse(ctx, "key not found");
+					} else {
+						successResponse(ctx, value);
+					}
+					resolve(value);
+				}
+			})) {
+			const msg = `failed to get ${ key }`;
+			errorResponse(ctx, msg);
+			reject(msg);
+		}
+	});
+}
+command(
+	"get",
+	{
+		title: "GET command",
+		returns: "any",
+		syntax: [
+			"get (key string)",
+			"GET (key string)"
+		],
+		handler: {
+			endpoint: "get/{key}",
+			method: "get"
+		}
+	},
+	{
+		path: "/get/:key",
+		method: "get",
+		handler: get
+	}
+);
 
 function set(ctx: connector.CommandHandlerContext) {
 	if (!client) {
@@ -440,35 +509,23 @@ function set(ctx: connector.CommandHandlerContext) {
 		}
 	});
 }
-
-function get(ctx: connector.CommandHandlerContext) {
-	if (!client) {
-		errorResponse(ctx, "not connected", 400);
-	}
-
-	const key = ctx.params.key;
-
-	return new Promise((resolve , reject) => {
-		if (!client!.get(key, (err: Error, value: string) => {
-			if (err) {
-				errorResponse(ctx, err.message);
-				reject(err);
-			} else {
-				try {
-					value = JSON.parse(value);
-				} catch (e) {}
-
-				if (value == null) {
-					errorResponse(ctx, "key not found");
-				} else {
-					successResponse(ctx, value);
-				}
-				resolve(value);
-			}
-		})) {
-			const msg = `failed to get ${ key }`;
-			errorResponse(ctx, msg);
-			reject(msg);
+command(
+	"set",
+	{
+		title: "SET command",
+		returns: "ui.message",
+		syntax: [
+			"set (key string) to (value any)",
+			"SET (key string) to (value any)"
+		],
+		handler: {
+			endpoint: "set",
+			method: "post"
 		}
-	});
-}
+	},
+	{
+		path: "/set",
+		method: "post",
+		handler: set
+	}
+);
