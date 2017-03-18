@@ -4,7 +4,7 @@
   "description": "a fugazi redis connector for node",
   "main": "scripts/bin/index.js",
   "types": "scripts/bin/index.d.ts",
-  "keywords": [],
+  "keywords": ["fugazi", "redis", "cli", "api", "rest", "rpc"],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/fugazi-io/connector.node.redis.git"
