@@ -49,7 +49,7 @@ info: you can load the following urls from any fugazi terminal:
 info: http://localhost:33334/descriptor.json
 ```
 
-In a fugazi terminal (regardless of where it hosted from) load the module from the provided url:
+In a fugazi terminal ([http://fugazi.io](http://fugazi.io) or if hosted anywhere else) load the module from the provided url:
 ```
 load module from "http://localhost:33334/descriptor.json"
 ```

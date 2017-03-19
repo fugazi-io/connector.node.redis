@@ -1,6 +1,6 @@
 {
   "name": "@fugazi/connector.redis",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "a fugazi redis connector for node",
   "main": "scripts/bin/index.js",
   "types": "scripts/bin/index.d.ts",
