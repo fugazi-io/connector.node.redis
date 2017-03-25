@@ -56,12 +56,13 @@ function normalize(data: any): string | number | boolean {
 }
 
 function errorResponse(ctx: connector.CommandHandlerContext, message: string, status: number = 200) {
+	console.log("errorResponse - message: " + message + ", status: " + status);
 	ctx.status = status;
 	ctx.type = "application/json";
-	ctx.body = {
+	ctx.body = JSON.stringify({
 		status: 1, // value for fugazi.components.commands.handler.ResultStatus.Failure
-		value: message
-	};
+		error: message
+	});
 }
 
 function successResponse(ctx: connector.CommandHandlerContext, data: any) {
@@ -342,7 +343,6 @@ command(
 );
 
 function dump(ctx: connector.CommandHandlerContext) {
-	console.log("sup?");
 	if (!client) {
 		errorResponse(ctx, "not connected", 400);
 	}
@@ -580,4 +580,55 @@ command(
 		method: "get",
 		handler: type
 	}
+);
+
+function renamenx(ctx: connector.CommandHandlerContext) {
+	if (!client) {
+		errorResponse(ctx, "not connected", 400);
+	}
+
+	const { key, newKey } = ctx.request.body;
+
+	return new Promise((resolve, reject) => {
+		try {
+			if (!client!.renamenx(key, normalize(newKey), (err: Error, res: boolean) => {
+					if (err) {
+						errorResponse(ctx, err.message);
+						reject(err.message);
+					} else {
+						successResponse(ctx, res ? 1 : 0);
+						resolve(res);
+					}
+				})) {
+				const msg = `failed to renamenx ${ key } to ${ newKey }`;
+				errorResponse(ctx, msg);
+				reject(msg);
+			}
+		}
+		catch (e) {
+			const msg = typeof e === "string" ? e : (e instanceof Error ? e.message : e.toString());
+			errorResponse(ctx, msg);
+			reject(msg);
+		}
+	});
+}
+command(
+	"renamenx",
+	{
+		title: "renamenx command",
+		returns: "number[numbers.integer]",
+		syntax: [
+			"renamenx (key string) (newKey string)",
+			"RENAMENX (key string) (newKey string)"
+		],
+		handler: {
+			endpoint: "renamenx",
+			method: "post"
+		}
+	},
+	{
+		path: "/renamenx",
+		method: "post",
+		handler: renamenx
+	},
 );
