@@ -2,7 +2,7 @@
  * Created by nitzan on 28/02/2017.
  */
 
-import * as connector from "fugazi.connector.node";
+import * as connector from "@fugazi/connector";
 import program = require("commander");
 
 declare module "commander" {
@@ -38,8 +38,8 @@ let CONNECTOR: connector.Connector;
 	const listenHost = program.listenHost || DEFAULT_HOST;
 	const listenPort = Number(program.listenPort) || DEFAULT_LISTEN_PORT;
 
-	redisHost = program.mongoHost || DEFAULT_HOST;
-	redisPort = Number(program.mongoPort) || DEFAULT_REDIS_PORT;
+	redisHost = program.redisHost || DEFAULT_HOST;
+	redisPort = Number(program.redisPort) || DEFAULT_REDIS_PORT;
 
 	const builder = new connector.Builder();
 	builder.server().host(listenHost).port(listenPort);

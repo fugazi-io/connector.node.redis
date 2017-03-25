@@ -3,7 +3,7 @@
  */
 
 import * as redis from "redis";
-import * as connector from "fugazi.connector.node";
+import * as connector from "@fugazi/connector";
 
 let client: redis.RedisClient | null = null;
 
