@@ -529,3 +529,55 @@ command(
 		handler: set
 	}
 );
+
+function type(ctx: connector.CommandHandlerContext) {
+	if (!client) {
+		errorResponse(ctx, "not connected", 400);
+	}
+
+	const key = ctx.params.key;
+
+	return new Promise((resolve , reject) => {
+		if (!client!.type(key, (err: Error, value: string) => {
+				if (err) {
+					errorResponse(ctx, err.message);
+					reject(err);
+				} else {
+					try {
+						value = JSON.parse(value);
+					} catch (e) {}
+
+					if (value == null) {
+						errorResponse(ctx, "key not found");
+					} else {
+						successResponse(ctx, value);
+					}
+					resolve(value);
+				}
+			})) {
+			const msg = `failed to type ${ key }`;
+			errorResponse(ctx, msg);
+			reject(msg);
+		}
+	});
+}
+command(
+	"type",
+	{
+		title: "type command",
+		returns: "any",
+		syntax: [
+			"type (key string)",
+			"TYPE (key string)"
+		],
+		handler: {
+			endpoint: "type/{key}",
+			method: "get"
+		}
+	},
+	{
+		path: "/type/:key",
+		method: "get",
+		handler: type
+	}
+);
