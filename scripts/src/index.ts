@@ -41,29 +41,22 @@ let CONNECTOR: connector.Connector;
 	redisHost = program.redisHost || DEFAULT_HOST;
 	redisPort = Number(program.redisPort) || DEFAULT_REDIS_PORT;
 
-	const builder = new connector.Builder();
-	builder.server().host(listenHost).port(listenPort);
-	const module = {
+	const builder = new connector.ConnectorBuilder();
+	builder.server().host(listenHost).port(listenPort).cors(true);
+	const module = builder.module({
 		name: "redis",
-		title: "Redis connector",
-		commands: {}
-	} as connector.RootModule;
+		title: "Redis connector"
+	});
 
-	redis.init(module, redisHost, redisPort)
-		.then((commands) => {
-			builder.module("/descriptor.json", module, true);
-			commands.forEach(command => {
-				builder.command(command.path, command.method, command.handler);
-			});
-			CONNECTOR = builder.build();
-			CONNECTOR.logger.info(`Connected to redis at ${ redisHost }:${ redisPort }`);
-			CONNECTOR.start();
-		})
-		.catch((e: any) => {
-			if (e instanceof Error) {
-				console.error("failed to start redis, message: " + e.message);
-			} else {
-				console.error("failed to start redis, error: ", e);
-			}
-		});
+	redis.init(module, redisHost, redisPort).then(() => {
+		CONNECTOR = builder.build();
+		CONNECTOR.logger.info(`Connected to redis at ${ redisHost }:${ redisPort }`);
+		CONNECTOR.start().then(() => CONNECTOR.logger.info("connector started"));
+	}).catch((e: any) => {
+		if (e instanceof Error) {
+			console.error("failed to start redis, message: " + e.message);
+		} else {
+			console.error("failed to start redis, error: ", e);
+		}
+	});
 })();
