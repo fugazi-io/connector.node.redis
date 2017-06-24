@@ -6,19 +6,11 @@ import * as redis from "redis";
 import * as connector from "@fugazi/connector";
 
 let client: redis.RedisClient | null = null;
+const COMMANDS = [] as Array<(module: connector.components.ModuleBuilder) => void>;
 
 export async function init(module: connector.components.ModuleBuilder, host: string, port: number): Promise<void> {
 	return redisConnect(host, port).then(() => {
-		addAppend(module);
-		addDbsize(module);
-		addDecrement(module);
-		addDecrementBy(module);
-		addDel(module);
-		addDump(module);
-		addExists(module);
-		addGet(module);
-		addSet(module);
-		addType(module);
+		COMMANDS.forEach(fn => fn(module));
 	});
 }
 
@@ -68,7 +60,7 @@ function append(request: connector.server.Request): Promise<connector.server.Res
 		}
 	});
 }
-function addAppend(module: connector.components.ModuleBuilder) {
+COMMANDS.push((module: connector.components.ModuleBuilder) => {
 	module
 		.command("append", {
 			title: "APPEND command",
@@ -82,7 +74,7 @@ function addAppend(module: connector.components.ModuleBuilder) {
 		})
 		.method("post")
 		.handler(append);
-}
+});
 
 function dbsize(request: connector.server.Request): Promise<connector.server.Response> {
 	if (!client) {
@@ -101,7 +93,7 @@ function dbsize(request: connector.server.Request): Promise<connector.server.Res
 		}
 	});
 }
-function addDbsize(module: connector.components.ModuleBuilder) {
+COMMANDS.push((module: connector.components.ModuleBuilder) => {
 	module
 		.command("dbsize", {
 			title: "DBSIZE command",
@@ -112,7 +104,7 @@ function addDbsize(module: connector.components.ModuleBuilder) {
 			]
 		})
 		.handler(dbsize);
-}
+});
 
 function decrement(request: connector.server.Request): Promise<connector.server.Response> {
 	if (!client) {
@@ -133,7 +125,7 @@ function decrement(request: connector.server.Request): Promise<connector.server.
 		}
 	});
 }
-function addDecrement(module: connector.components.ModuleBuilder) {
+COMMANDS.push((module: connector.components.ModuleBuilder) => {
 	module
 		.command("decrement", {
 			title: "DECR command",
@@ -145,7 +137,7 @@ function addDecrement(module: connector.components.ModuleBuilder) {
 		})
 		.method("post")
 		.handler(decrement);
-}
+});
 
 function decrementBy(request: connector.server.Request): Promise<connector.server.Response> {
 	if (!client) {
@@ -173,7 +165,7 @@ function decrementBy(request: connector.server.Request): Promise<connector.serve
 		}
 	});
 }
-function addDecrementBy(module: connector.components.ModuleBuilder) {
+COMMANDS.push((module: connector.components.ModuleBuilder) => {
 	module
 		.command("decrementBy", {
 			title: "DECRBY command",
@@ -187,7 +179,7 @@ function addDecrementBy(module: connector.components.ModuleBuilder) {
 		})
 		.method("post")
 		.handler(decrementBy);
-}
+});
 
 function del(request: connector.server.Request): Promise<connector.server.Response> {
 	if (!client) {
@@ -215,7 +207,7 @@ function del(request: connector.server.Request): Promise<connector.server.Respon
 		}
 	});
 }
-function addDel(module: connector.components.ModuleBuilder) {
+COMMANDS.push((module: connector.components.ModuleBuilder) => {
 	module
 		.command("del", {
 			title: "DEL command",
@@ -229,7 +221,7 @@ function addDel(module: connector.components.ModuleBuilder) {
 		})
 		.method("delete")
 		.handler(del);
-}
+});
 
 function dump(request: connector.server.Request): Promise<connector.server.Response> {
 	if (!client) {
@@ -253,7 +245,7 @@ function dump(request: connector.server.Request): Promise<connector.server.Respo
 		}
 	});
 }
-function addDump(module: connector.components.ModuleBuilder) {
+COMMANDS.push((module: connector.components.ModuleBuilder) => {
 	module
 		.command("dump", {
 			title: "DUMP command",
@@ -265,7 +257,7 @@ function addDump(module: connector.components.ModuleBuilder) {
 		})
 		.endpoint("dump/{key}")
 		.handler(dump);
-}
+});
 
 function exists(request: connector.server.Request): Promise<connector.server.Response> {
 	if (!client) {
@@ -293,7 +285,7 @@ function exists(request: connector.server.Request): Promise<connector.server.Res
 		}
 	});
 }
-function addExists(module: connector.components.ModuleBuilder) {
+COMMANDS.push((module: connector.components.ModuleBuilder) => {
 	module
 		.command("exists", {
 			title: "EXISTS command",
@@ -306,7 +298,7 @@ function addExists(module: connector.components.ModuleBuilder) {
 			]
 		})
 		.handler(exists);
-}
+});
 
 function get(request: connector.server.Request): Promise<connector.server.Response> {
 	if (!client) {
@@ -338,7 +330,7 @@ function get(request: connector.server.Request): Promise<connector.server.Respon
 		}
 	});
 }
-function addGet(module: connector.components.ModuleBuilder) {
+COMMANDS.push((module: connector.components.ModuleBuilder) => {
 	module
 		.command("get", {
 			title: "GET command",
@@ -350,7 +342,7 @@ function addGet(module: connector.components.ModuleBuilder) {
 		})
 		.endpoint("get/{key}")
 		.handler(get);
-}
+});
 
 function set(request: connector.server.Request): Promise<connector.server.Response> {
 	if (!client) {
@@ -378,7 +370,7 @@ function set(request: connector.server.Request): Promise<connector.server.Respon
 		}
 	});
 }
-function addSet(module: connector.components.ModuleBuilder) {
+COMMANDS.push((module: connector.components.ModuleBuilder) => {
 	module
 		.command("set", {
 			title: "SET command",
@@ -390,7 +382,7 @@ function addSet(module: connector.components.ModuleBuilder) {
 		})
 		.method("post")
 		.handler(set);
-}
+});
 
 function type(request: connector.server.Request): Promise<connector.server.Response> {
 	if (!client) {
@@ -423,7 +415,7 @@ function type(request: connector.server.Request): Promise<connector.server.Respo
 		}
 	});
 }
-function addType(module: connector.components.ModuleBuilder) {
+COMMANDS.push((module: connector.components.ModuleBuilder) => {
 	module
 		.command("type", {
 			title: "type command",
@@ -435,4 +427,4 @@ function addType(module: connector.components.ModuleBuilder) {
 		})
 		.endpoint("type/{ key }")
 		.handler(type);
-}
+});
