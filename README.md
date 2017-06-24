@@ -75,11 +75,14 @@ The following commands are supported:
  * [EXISTS](https://redis.io/commands/exists)
  * [GET](https://redis.io/commands/get)
  * [SET](https://redis.io/commands/set)
+ * [TYPE](https://redis.io/commands/type)
  
 More commands to follow.
 
 ## Contribution
-
 We'll be happy to get help with this connector (as with all [fugazi repos](https://github.com/fugazi-io)), for example to 
 add unimplemented commands (more info in [Add a Redis command](https://github.com/fugazi-io/connector.node.redis/wiki/Add-a-Redis-command)).  
-Feel free to fork and open pull request, or find us in this gmail.com address: terminal.fugazi.io
+
+## Contact
+Feel free to [create issues](https://github.com/fugazi-io/connector.node.redis/issues) if you're running into trouble, 
+and welcome to ask any question in [our gitter](https://gitter.im/fugazi-io/Lobby).

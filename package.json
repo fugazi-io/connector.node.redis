@@ -1,6 +1,6 @@
 {
   "name": "@fugazi/connector.redis",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "a fugazi redis connector for node",
   "main": "scripts/bin/index.js",
   "types": "scripts/bin/index.d.ts",
@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/fugazi-io/connector.node.redis#readme",
   "dependencies": {
-    "@fugazi/connector": "^1.0.11",
+    "@fugazi/connector": "^1.0.12",
     "@types/commander": "^2.3.31",
     "@types/redis": "^0.12.35",
     "commander": "^2.9.0",
