@@ -10,43 +10,63 @@ The package can be found in [npm @fugazi/connector.redis](https://www.npmjs.com/
 npm install @fugazi/connector.redis
 ```
 
+You then need to compile the typescript files:
+```bash
+npm run compile
+// or
+node_modules/typescript/bin/tsc -p scripts
+```
+
 ## Running
 ```bash
-/CONNECTOR/PATH > node ./scripts/bin/index.js
+npm run start
+// or
+node scripts/bin/index.js
+```
+
+If you want to pass arguments then:
+```bash
+npm run start -- --redis-host 3232
+// or
+node scripts/bin/index.js --redis-host 3232
 ```
 
 ### Options:
 #### --redis-host
 The host to which the redis service is bound to, default is `localhost`
 ```bash
-/CONNECTOR/PATH > node ./scripts/bin/index.js --redis-host 0.0.0.0
+node scripts/bin/index.js --redis-host 0.0.0.0
 ```
 
 #### --redis-port
 The port to which the redis service is bound to, default is `6379`
 ```bash
-/CONNECTOR/PATH > node ./scripts/bin/index.js --redis-port 6333
+node scripts/bin/index.js --redis-port 6333
 ```
 
 #### --listen-host
 The host to which the connector service is bound to, default is `localhost`
 ```bash
-/CONNECTOR/PATH > node ./scripts/bin/index.js --listen-host 0.0.0.0
+node scripts/bin/index.js --listen-host 0.0.0.0
 ```
 
 #### --listen-port
 The port to which the connector service is bound to, default is `33334`
 ```bash
-/CONNECTOR/PATH > node ./scripts/bin/index.js --listen-port 33333
+node scripts/bin/index.js --listen-port 33333
 ```
 
 ## Using
-Once the connector service starts it logs the addresses to which it is bound to along with a url for the fugazi module, i.e.:
+Once the connector service starts it should print something like:
 ```
+info: ===== ROUTES START =====
+... served routes ...
+info: # Root modules:
+info:     /redis.json
+info: ====== ROUTES END ======
 info: Connected to redis at localhost:6379
 info: server started. listening on localhost:33334
-info: you can load the following urls from any fugazi terminal:
-info: http://localhost:33334/descriptor.json
+info: connector started
 ```
 
 In a fugazi terminal ([http://fugazi.io](http://fugazi.io) or if hosted anywhere else) load the module from the provided url:
