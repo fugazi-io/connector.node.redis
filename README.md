@@ -71,7 +71,7 @@ info: connector started
 
 In a fugazi terminal ([http://fugazi.io](http://fugazi.io) or if hosted anywhere else) load the module from the provided url:
 ```
-load module from "http://localhost:33334/descriptor.json"
+load module from "http://localhost:33334/redis.json"
 ```
 
 Now you're ready to use the redis module, for example:
