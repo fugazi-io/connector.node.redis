@@ -17,7 +17,7 @@ export async function init(module: connector.components.ModuleBuilder, host: str
 function errorResponse(message: string): connector.server.Response {
 	return {
 		status: connector.server.ResponseStatus.Failure,
-		data: message
+		error: message
 	};
 }
 
@@ -408,7 +408,6 @@ function type(request: connector.server.Request): Promise<connector.server.Respo
 					} else {
 						resolve(successResponse(value));
 					}
-					resolve(value);
 				}
 			})) {
 			resolve(errorResponse(`failed to type ${ key }`));
